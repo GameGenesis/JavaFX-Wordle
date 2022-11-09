@@ -1,0 +1,5 @@
+#letter-box {
+    -fx-border-color: "#666666";
+    -fx-border-width: 2;
+    -fx-label-padding: -4;
+}
