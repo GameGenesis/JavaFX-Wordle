@@ -12,13 +12,17 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    private static Scene scene;
+    public static Scene scene;
+    private static AppController controller;
+
     private static final int minWidth = 480;
     private static final int minHeight = 720;
 
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("wordle"), minWidth, minHeight);
+        scene.getStylesheets().add("stylesheet.css");
+
         stage.setTitle("Wordle");
         stage.setMinWidth(minWidth);
         stage.setMinHeight(minHeight);
@@ -27,13 +31,13 @@ public class App extends Application {
         stage.show();
     }
 
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
+        Parent parent = fxmlLoader.load();
+
+        controller = (AppController)fxmlLoader.getController();
+
+        return parent;
     }
 
     public static void main(String[] args) {
