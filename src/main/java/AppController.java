@@ -67,6 +67,8 @@ public class AppController {
                     label.setId("letter-box-wrong-letter");
                     label.setTextFill(Color.WHITE);
                 }
+
+                animateLabelScaling(label, 0.2, 1.0, 0.0);
             }
             
             System.out.println("Complete Word!");
@@ -90,16 +92,16 @@ public class AppController {
             if (label.getText().isEmpty()) {
                 label.setText(key);
                 label.setId("letter-box-filled");
-                animateLabel(label);
+                animateLabelScaling(label, 0.08, 1.1, 1.1);
                 break;
             }
         }
     }
 
-    private void animateLabel(Label label) {
-        ScaleTransition transition = new ScaleTransition(Duration.seconds(0.08), label);
-        transition.setToX(1.1);
-        transition.setToY(1.1);
+    private void animateLabelScaling(Label label, double duration, double xScale, double yScale) {
+        ScaleTransition transition = new ScaleTransition(Duration.seconds(duration), label);
+        transition.setToX(xScale);
+        transition.setToY(yScale);
 
         transition.setAutoReverse(true);
         transition.setCycleCount(2);
