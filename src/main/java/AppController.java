@@ -1,6 +1,12 @@
 import java.util.List;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -20,15 +26,17 @@ public class AppController {
 
     private HBox rowBox;
 
-    private int currentRow = 0;
+    private int currentRowIndex = 0;
+    private int currentletterIndex = 0;
+
     private String correctWord = "rainy";
 
     public void getInput(String key) {
         List<Node> letterBoxChildren = letterBox.getChildren();
-        if (currentRow > letterBoxChildren.size() - 1)
+        if (currentRowIndex > letterBoxChildren.size() - 1)
             return;
 
-        rowBox = (HBox)letterBoxChildren.get(currentRow);
+        rowBox = (HBox)letterBoxChildren.get(currentRowIndex);
 
         if (key.equals("BACK_SPACE")) {
             List<Node> children = rowBox.getChildren();
@@ -50,30 +58,19 @@ public class AppController {
             for (int i = children.size() - 1; i >= 0 ; i--) {
                 Label label = (Label)children.get(i);
                 String labelText = label.getText();
-                
+
                 if (labelText.isEmpty()) {
                     return;
                 }
-
-                if (labelText.equals(correctWord.substring(i, i+1).toUpperCase())) {
-                    label.setId("letter-box-correct-location");
-                    label.setTextFill(Color.WHITE);
-                }
-                else if (correctWord.toUpperCase().contains(labelText)) {
-                    label.setId("letter-box-wrong-location");
-                    label.setTextFill(Color.WHITE);
-                }
-                else {
-                    label.setId("letter-box-wrong-letter");
-                    label.setTextFill(Color.WHITE);
-                }
-
-                animateLabelScaling(label, 0.2, 1.0, 0.0);
+                // animateScalingPingPong(label, 0.2, 1.0, 0.0);
             }
-            
+
             System.out.println("Complete Word!");
-            if (currentRow < 5)
-                currentRow++;
+            animateFlipEffect(children);
+            // animateWinEffect(children);
+
+            if (currentRowIndex < 5)
+                currentRowIndex++;
             return;
         }
 
@@ -88,25 +85,71 @@ public class AppController {
 
         for (Node child : rowBox.getChildren()) {
             Label label = (Label)child;
-            
+
             if (label.getText().isEmpty()) {
                 label.setText(key);
                 label.setId("letter-box-filled");
-                animateLabelScaling(label, 0.08, 1.1, 1.1);
+                animateScalingPingPong(label, 0.08, 1.1, 1.1);
                 break;
             }
         }
     }
 
-    private void animateLabelScaling(Label label, double duration, double xScale, double yScale) {
-        ScaleTransition transition = new ScaleTransition(Duration.seconds(duration), label);
+    private void animateScalingPingPong(Node node, double duration, double xScale, double yScale) {
+        ScaleTransition transition = new ScaleTransition(Duration.seconds(duration), node);
         transition.setToX(xScale);
         transition.setToY(yScale);
 
         transition.setAutoReverse(true);
         transition.setCycleCount(2);
+        // transition.setInterpolator(Interpolator.EASE_OUT);
 
         transition.play();
     }
 
+    private void animateFlipEffect(List<Node> nodes) {
+        Timeline timeline = new Timeline();
+        double delayOffset = 0.0;
+        currentletterIndex = 0;
+
+        for (int i = 0; i < nodes.size(); i++) {
+            Label label = (Label)nodes.get(i);
+
+            KeyValue value0 = new KeyValue(label.scaleYProperty(), 1.0);
+            KeyFrame key0 = new KeyFrame(Duration.seconds(delayOffset), value0);
+
+            KeyValue value1 = new KeyValue(label.scaleYProperty(), 0.0);
+            KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + 0.15), value1);
+
+            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.15), e -> { setLetterBoxColor(e, label); });
+
+            KeyValue value3 = new KeyValue(label.scaleYProperty(), 1.0);
+            KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + 0.3), value3);
+
+            timeline.getKeyFrames().addAll(key0, key1, key2, key3);
+
+            delayOffset += 0.3;
+        }
+
+        timeline.play();
+    }
+
+    private void setLetterBoxColor(ActionEvent e, Label label) {
+        String labelText = label.getText();
+
+        if (labelText.equals(correctWord.substring(currentletterIndex, currentletterIndex+1).toUpperCase())) {
+            label.setId("letter-box-correct-location");
+            label.setTextFill(Color.WHITE);
+        }
+        else if (correctWord.toUpperCase().contains(labelText)) {
+            label.setId("letter-box-wrong-location");
+            label.setTextFill(Color.WHITE);
+        }
+        else {
+            label.setId("letter-box-wrong-letter");
+            label.setTextFill(Color.WHITE);
+        }
+
+        currentletterIndex++;
+    }
 }
