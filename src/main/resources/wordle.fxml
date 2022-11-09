@@ -5,20 +5,19 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="480.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AppController">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Wordle" textAlignment="CENTER">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="WORDLE" textAlignment="CENTER">
                      <font>
-                        <Font name="SansSerif Bold" size="36.0" />
+                        <Font name="Lucida Sans Demibold Roman" size="36.0" />
                      </font>
                      <HBox.margin>
                         <Insets bottom="5.0" top="5.0" />
@@ -26,16 +25,20 @@
                   </Text>
                </children>
             </HBox>
-            <AnchorPane>
-               <children>
-                  <Line endX="400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-               </children>
+            <AnchorPane fx:id="lineAnchor" minHeight="0.8" style="-fx-background-color: #888888;">
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" />
+               </VBox.margin>
             </AnchorPane>
          </children>
       </VBox>
    </top>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0" />
+         </children>
+      </VBox>
    </center>
    <bottom>
       <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #dddddd;" BorderPane.alignment="CENTER" />

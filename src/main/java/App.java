@@ -13,13 +13,17 @@ import java.io.IOException;
 public class App extends Application {
 
     private static Scene scene;
+    private static final int minWidth = 480;
+    private static final int minHeight = 720;
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("wordle"), 400, 600);
-        stage.setScene(scene);
+        scene = new Scene(loadFXML("wordle"), minWidth, minHeight);
         stage.setTitle("Wordle");
-        stage.setResizable(false);
+        stage.setMinWidth(minWidth);
+        stage.setMinHeight(minHeight);
+        stage.setResizable(true);
+        stage.setScene(scene);
         stage.show();
     }
 
