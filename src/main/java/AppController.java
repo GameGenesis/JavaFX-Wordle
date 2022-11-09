@@ -152,4 +152,33 @@ public class AppController {
 
         currentletterIndex++;
     }
+
+    private void animateWinEffect(List<Node> nodes) {
+        Timeline timeline = new Timeline();
+        double delayOffset = 0.0;
+
+        for (Node node : nodes) {
+            KeyValue value0 = new KeyValue(node.translateYProperty(), 0);
+            KeyFrame key0 = new KeyFrame(Duration.seconds(delayOffset), value0);
+
+            KeyValue value1 = new KeyValue(node.translateYProperty(), -25);
+            KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + 0.15), value1);
+
+            KeyValue value2 = new KeyValue(node.translateYProperty(), 12);
+            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.3), value2);
+
+            KeyValue value3 = new KeyValue(node.translateYProperty(), -5);
+            KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + 0.45), value3);
+
+            KeyValue value4 = new KeyValue(node.translateYProperty(), 0);
+            KeyFrame key4 = new KeyFrame(Duration.seconds(delayOffset + 0.6), value4);
+
+            timeline.getKeyFrames().addAll(key0, key1, key2, key3, key4);
+
+            delayOffset += 0.15;
+        }
+
+        timeline.play();
+    }
+
 }
