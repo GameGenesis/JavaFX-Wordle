@@ -3,6 +3,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,6 +23,11 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("wordle"), minWidth, minHeight);
         scene.getStylesheets().add("stylesheet.css");
+
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+            if (controller != null)
+                controller.getInput(key.getCode().name());
+        });
 
         stage.setTitle("Wordle");
         stage.setMinWidth(minWidth);
