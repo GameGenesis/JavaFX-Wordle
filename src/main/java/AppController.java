@@ -6,7 +6,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -27,7 +26,9 @@ public class AppController {
     private HBox rowBox;
 
     private int currentRowIndex = 0;
+
     private int currentletterIndex = 0;
+    private String currentWord;
 
     private String correctWord = "rainy";
 
@@ -62,12 +63,9 @@ public class AppController {
                 if (labelText.isEmpty()) {
                     return;
                 }
-                // animateScalingPingPong(label, 0.2, 1.0, 0.0);
             }
 
-            System.out.println("Complete Word!");
             animateFlipEffect(children);
-            // animateWinEffect(children);
 
             if (currentRowIndex < 5)
                 currentRowIndex++;
@@ -110,6 +108,8 @@ public class AppController {
     private void animateFlipEffect(List<Node> nodes) {
         Timeline timeline = new Timeline();
         double delayOffset = 0.0;
+
+        currentWord = "";
         currentletterIndex = 0;
 
         for (int i = 0; i < nodes.size(); i++) {
@@ -131,11 +131,14 @@ public class AppController {
             delayOffset += 0.3;
         }
 
+        timeline.setOnFinished(e -> animateWinEffect(nodes));
+
         timeline.play();
     }
 
     private void setLetterBoxColor(ActionEvent e, Label label) {
         String labelText = label.getText();
+        currentWord += labelText;
 
         if (labelText.equals(correctWord.substring(currentletterIndex, currentletterIndex+1).toUpperCase())) {
             label.setId("letter-box-correct-location");
@@ -154,6 +157,9 @@ public class AppController {
     }
 
     private void animateWinEffect(List<Node> nodes) {
+        if (!correctWord.toUpperCase().equals(currentWord))
+            return;
+
         Timeline timeline = new Timeline();
         double delayOffset = 0.0;
 
