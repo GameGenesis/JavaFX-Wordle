@@ -172,8 +172,11 @@ public class AppController {
     }
 
     private void animateWinEffect(List<Node> nodes) {
-        if (!correctWord.toUpperCase().equals(currentWord))
+        if (!correctWord.toUpperCase().equals(currentWord)) {
+            if (currentRowIndex == letterBoxChildren.size())
+                createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord));
             return;
+        }
 
         Timeline timeline = new Timeline();
         double delayOffset = 0.0;
@@ -199,7 +202,17 @@ public class AppController {
             delayOffset += 0.15;
         }
 
+        timeline.setOnFinished(e -> createDialog("Correct Guess", String.format("Awesome! You Won! You figured out the word: %s", correctWord)));
         timeline.play();
+    }
+
+    private void createDialog(String title, String content) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+
+        Platform.runLater(alert::showAndWait);
     }
 
 }
