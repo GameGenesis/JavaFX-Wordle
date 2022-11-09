@@ -1,13 +1,13 @@
 # ICS4U Wordle Program - Rubric
 
-## Name:
+## Name: Rayan Kaissi
 [TOC]
 
 ## Mini Reflection
 
-Name: <insert your name>
+Name: Rayan Kaissi
 
-I think my program is a level <XXXX> because .... <complete this>
+I think my program is a level 4+ because .... <complete this>
 
 The extra features I included in my program are: 
 

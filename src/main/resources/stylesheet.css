@@ -30,3 +30,13 @@
     -fx-border-width: 2;
     -fx-label-padding: -4;
 }
+
+#keyboard-button {
+    -fx-background-color: "#d3d6da";
+}
+
+#popup-label {
+    -fx-background-color: "#000000";
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
