@@ -1,5 +1,32 @@
-#letter-box {
-    -fx-border-color: "#666666";
+#letter-box-empty {
+    -fx-border-color: "#bbbbbb";
+    -fx-border-width: 2;
+    -fx-label-padding: -4;
+}
+
+#letter-box-filled {
+    -fx-border-color: "#787c7f";
+    -fx-border-width: 2;
+    -fx-label-padding: -4;
+}
+
+#letter-box-correct-location {
+    -fx-background-color: "#6ca965";
+    -fx-border-color: "#6ca965";
+    -fx-border-width: 2;
+    -fx-label-padding: -4;
+}
+
+#letter-box-wrong-location {
+    -fx-background-color: "#c8b653";
+    -fx-border-color: "#c8b653";
+    -fx-border-width: 2;
+    -fx-label-padding: -4;
+}
+
+#letter-box-wrong-letter {
+    -fx-background-color: "#787c7f";
+    -fx-border-color: "#787c7f";
     -fx-border-width: 2;
     -fx-label-padding: -4;
 }
