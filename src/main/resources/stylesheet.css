@@ -40,3 +40,8 @@
     -fx-border-radius: 5;
     -fx-background-radius: 5;
 }
+
+#backspace-button {
+    -fx-background-color: "#d3d6da";
+    -fx-graphic: url(backspace.png);
+}

@@ -1,14 +1,17 @@
 import java.util.List;
 
-import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -23,19 +26,31 @@ public class AppController {
     @FXML
     private VBox letterBox;
 
+    private List<Node> letterBoxChildren;
     private HBox rowBox;
-
     private int currentRowIndex = 0;
 
     private int currentletterIndex = 0;
     private String currentWord;
 
-    private String correctWord = "rainy";
+    private String correctWord = "Rainy";
+
+    @FXML
+    private void keyPressed(ActionEvent event) {
+        Object node = event.getSource();
+        Button button = (Button)node;
+        getInput(button.getText());
+    }
+
+    @FXML
+    private void initialize() {
+        letterBoxChildren = letterBox.getChildren();
+    }
 
     public void getInput(String key) {
-        List<Node> letterBoxChildren = letterBox.getChildren();
-        if (currentRowIndex > letterBoxChildren.size() - 1)
+        if (letterBoxChildren == null || currentRowIndex > letterBoxChildren.size() - 1) {
             return;
+        }
 
         rowBox = (HBox)letterBoxChildren.get(currentRowIndex);
 
@@ -67,8 +82,7 @@ public class AppController {
 
             animateFlipEffect(children);
 
-            if (currentRowIndex < 5)
-                currentRowIndex++;
+            currentRowIndex++;
             return;
         }
 
