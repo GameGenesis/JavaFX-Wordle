@@ -1,5 +1,6 @@
 import java.util.List;
 
+import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -7,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class AppController {
 
@@ -88,9 +90,21 @@ public class AppController {
             if (label.getText().isEmpty()) {
                 label.setText(key);
                 label.setId("letter-box-filled");
+                animateLabel(label);
                 break;
             }
         }
+    }
+
+    private void animateLabel(Label label) {
+        ScaleTransition transition = new ScaleTransition(Duration.seconds(0.08), label);
+        transition.setToX(1.1);
+        transition.setToY(1.1);
+
+        transition.setAutoReverse(true);
+        transition.setCycleCount(2);
+
+        transition.play();
     }
 
 }
