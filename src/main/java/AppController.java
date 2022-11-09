@@ -62,7 +62,8 @@ public class AppController {
                 if (!label.getText().isEmpty()) {
                     label.setText("");
                     label.setId("letter-box-empty");
-                    label.setTextFill(Color.BLACK);
+                    label.setTextFill(Color.web("#383838"));
+                    animateScalingPingPong(label, 0.07, 0.9, 0.9);
                     break;
                 }
             }
