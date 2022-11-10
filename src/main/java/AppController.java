@@ -134,6 +134,7 @@ public class AppController {
                 String labelText = label.getText();
 
                 if (labelText.isEmpty()) {
+                    animateInvalidWordEffect(children);
                     return;
                 }
 
@@ -142,6 +143,8 @@ public class AppController {
 
             // Checks if the entered text forms a real word
             if (!wordList.contains(currentWord.toLowerCase())) {
+                createDialog("Invalid Attempt", String.format("%s is not a word!", currentWord));
+                animateInvalidWordEffect(children);
                 return;
             }
 
@@ -307,6 +310,39 @@ public class AppController {
         }
 
         timeline.setOnFinished(e -> createDialog("Correct Guess", "Awesome! You figured out the word!"));
+        timeline.play();
+    }
+
+    private void animateInvalidWordEffect(List<Node> nodes) {
+        Timeline timeline = new Timeline();
+        double delayOffset = 0.0;
+
+        for (Node node : nodes) {          
+            KeyValue value0 = new KeyValue(node.rotateProperty(), 0);
+            KeyValue value0X = new KeyValue(node.scaleXProperty(), 1.0);
+            KeyValue value0Y = new KeyValue(node.scaleYProperty(), 1.0);
+            KeyFrame key0 = new KeyFrame(Duration.seconds(delayOffset), value0, value0X, value0Y);
+
+            KeyValue value1 = new KeyValue(node.rotateProperty(), 10);
+            KeyValue value1X = new KeyValue(node.scaleXProperty(), 1.05);
+            KeyValue value1Y = new KeyValue(node.scaleYProperty(), 1.05);
+            KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + 0.10), value1, value1X, value1Y);
+
+            KeyValue value2 = new KeyValue(node.rotateProperty(), -10);
+            KeyValue value2X = new KeyValue(node.scaleXProperty(), 1.02);
+            KeyValue value2Y = new KeyValue(node.scaleYProperty(), 1.02);
+            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.20), value2, value2X, value2Y);
+
+            KeyValue value3 = new KeyValue(node.rotateProperty(), 0);
+            KeyValue value3X = new KeyValue(node.scaleXProperty(), 1.0);
+            KeyValue value3Y = new KeyValue(node.scaleYProperty(), 1.0);
+            KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + 0.25), value3, value3X, value3Y);
+
+            timeline.getKeyFrames().addAll(key0, key1, key2, key3);
+
+            delayOffset += 0.05;
+        }
+
         timeline.play();
     }
 
