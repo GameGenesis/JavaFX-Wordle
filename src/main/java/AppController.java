@@ -1,5 +1,11 @@
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -57,6 +63,7 @@ public class AppController {
 
     @FXML
     private void initialize() {
+        getWord();
         letterBoxChildren = letterBox.getChildren();
 
         keyBoxChildren = new ArrayList<>();
@@ -78,6 +85,17 @@ public class AppController {
         Object node = event.getSource();
         Button button = (Button)node;
         getInput(button.getText());
+    }
+
+    private void getWord() {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/WordList.json")));
+            JSONObject obj = new JSONObject(content);
+            JSONArray inputArray = obj.getJSONArray("wordList");
+            correctWord = inputArray.getString(new Random().nextInt(inputArray.length()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void getInput(String key) {
