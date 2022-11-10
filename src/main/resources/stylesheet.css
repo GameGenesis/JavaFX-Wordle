@@ -31,17 +31,28 @@
     -fx-label-padding: -4;
 }
 
-#keyboard-button {
+#keyboard-button, #backspace-button {
     -fx-background-color: "#d3d6da";
+}
+
+#keyboard-button-correct-location {
+    -fx-background-color: "#6ca965";
+}
+
+#keyboard-button-wrong-location {
+    -fx-background-color: "#c8b653";
+}
+
+#keyboard-button-wrong-letter {
+    -fx-background-color: "#787c7f";
+}
+
+#backspace-button {
+    -fx-graphic: url(backspace.png);
 }
 
 #popup-label {
     -fx-background-color: "#000000";
     -fx-border-radius: 5;
     -fx-background-radius: 5;
-}
-
-#backspace-button {
-    -fx-background-color: "#d3d6da";
-    -fx-graphic: url(backspace.png);
 }
