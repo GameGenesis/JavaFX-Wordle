@@ -55,6 +55,7 @@ public class AppController {
     // The word that was submitted as an attempt (The word that the user typed on the current row)
     private String currentWord = "";
 
+    private List<Object> wordList;
     // The correct word
     private String correctWord = "Rainy";
 
@@ -91,8 +92,10 @@ public class AppController {
         try {
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/WordList.json")));
             JSONObject obj = new JSONObject(content);
-            JSONArray inputArray = obj.getJSONArray("wordList");
-            correctWord = inputArray.getString(new Random().nextInt(inputArray.length()));
+            JSONArray wordArray = obj.getJSONArray("wordList");
+            correctWord = wordArray.getString(new Random().nextInt(wordArray.length()));
+
+            wordList = wordArray.toList();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -122,7 +125,10 @@ public class AppController {
         }
 
         if (key.equals("ENTER")) {
+            currentWord = "";
+
             List<Node> children = currentRow.getChildren();
+
             for (int i = 0; i < children.size(); i++) {
                 Label label = (Label)children.get(i);
                 String labelText = label.getText();
@@ -134,6 +140,12 @@ public class AppController {
                 currentWord += labelText;
             }
 
+            // Checks if the entered text forms a real word
+            if (!wordList.contains(currentWord.toLowerCase())) {
+                return;
+            }
+
+            // Checks if the entered word matches the correct one
             if (correctWord.toUpperCase().equals(currentWord)) {
                 hasWon = true;
             }
@@ -141,7 +153,6 @@ public class AppController {
             animateFlipEffect(children);
 
             currentRowIndex++;
-            currentWord = "";
             return;
         }
 
