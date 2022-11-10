@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.animation.KeyFrame;
@@ -30,8 +31,16 @@ public class AppController {
     private HBox rowBox;
     private int currentRowIndex = 0;
 
+    @FXML
+    private VBox keyBox;
+
+    private List<Node> keyBoxChildren;
+    private List<String> correctLetters;
+    private List<String> misplacedLetters;
+    private List<String> wrongLetters;
+
     private int currentletterIndex = 0;
-    private String currentWord;
+    private String currentWord = "";
 
     private String correctWord = "Rainy";
 
@@ -47,6 +56,18 @@ public class AppController {
     @FXML
     private void initialize() {
         letterBoxChildren = letterBox.getChildren();
+
+        keyBoxChildren = new ArrayList<>();
+        List<Node> hboxChildren = keyBox.getChildren();
+
+        for (Node child : hboxChildren) {
+            HBox hbox = (HBox)child;
+            keyBoxChildren.addAll(hbox.getChildren());
+        }
+
+        correctLetters = new ArrayList<>();
+        misplacedLetters = new ArrayList<>();
+        wrongLetters = new ArrayList<>();
     }
 
     public void getInput(String key) {
@@ -85,8 +106,9 @@ public class AppController {
                 currentWord += labelText;
             }
 
-            if (correctWord.toUpperCase().equals(currentWord))
+            if (correctWord.toUpperCase().equals(currentWord)) {
                 hasWon = true;
+            }
 
             animateFlipEffect(children);
 
@@ -143,7 +165,7 @@ public class AppController {
             KeyValue value1 = new KeyValue(label.scaleYProperty(), 0.0);
             KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + 0.15), value1);
 
-            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.15), e -> { setLetterBoxColor(e, label); });
+            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.15), e -> { setLetterBoxColor(label); });
 
             KeyValue value3 = new KeyValue(label.scaleYProperty(), 1.0);
             KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + 0.3), value3);
@@ -153,31 +175,71 @@ public class AppController {
             delayOffset += 0.3;
         }
 
-        if (hasWon)
-            timeline.setOnFinished(e -> animateWinEffect(nodes));
-        else if (currentRowIndex == letterBoxChildren.size())
-            timeline.setOnFinished(e -> createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord)));
+        if (hasWon) {
+            timeline.setOnFinished(e -> {
+                setKeyboardButtonColors();
+                animateWinEffect(nodes);
+            });
+        }
+        else if (currentRowIndex == letterBoxChildren.size() - 1) {
+            timeline.setOnFinished(e -> {
+                setKeyboardButtonColors();
+                createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord));
+            });
+        }
+        else {
+            timeline.setOnFinished(e -> setKeyboardButtonColors());
+        }
 
         timeline.play();
     }
 
-    private void setLetterBoxColor(ActionEvent e, Label label) {
+    private void setLetterBoxColor(Label label) {
         String labelText = label.getText();
 
         if (labelText.equals(correctWord.substring(currentletterIndex, currentletterIndex+1).toUpperCase())) {
+            if (!correctLetters.contains(labelText))
+                correctLetters.add(labelText);
+
             label.setId("letter-box-correct-location");
             label.setTextFill(Color.WHITE);
         }
         else if (correctWord.toUpperCase().contains(labelText)) {
+            if (!misplacedLetters.contains(labelText))
+                misplacedLetters.add(labelText);
+
             label.setId("letter-box-wrong-location");
             label.setTextFill(Color.WHITE);
         }
         else {
+            if (!wrongLetters.contains(labelText))
+                wrongLetters.add(labelText);
+
             label.setId("letter-box-wrong-letter");
             label.setTextFill(Color.WHITE);
         }
 
         currentletterIndex++;
+    }
+
+    private void setKeyboardButtonColors() {
+        for (Node key : keyBoxChildren) {
+            Button button = (Button)key;
+            String buttonText = button.getText();
+
+            if (correctLetters.contains(buttonText)) {
+                button.setId("keyboard-button-correct-location");
+                button.setTextFill(Color.WHITE);
+            }
+            else if (misplacedLetters.contains(buttonText)) {
+                button.setId("keyboard-button-wrong-location");
+                button.setTextFill(Color.WHITE);
+            }
+            else if (wrongLetters.contains(buttonText)) {
+                button.setId("keyboard-button-wrong-letter");
+                button.setTextFill(Color.WHITE);
+            }
+        }
     }
 
     private void animateWinEffect(List<Node> nodes) {
@@ -205,7 +267,7 @@ public class AppController {
             delayOffset += 0.15;
         }
 
-        timeline.setOnFinished(e -> createDialog("Correct Guess", String.format("Awesome! You Won! You figured out the word: %s", correctWord)));
+        timeline.setOnFinished(e -> createDialog("Correct Guess", "Awesome! You figured out the word!"));
         timeline.play();
     }
 
