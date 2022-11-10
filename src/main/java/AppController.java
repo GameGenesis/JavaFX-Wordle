@@ -35,6 +35,8 @@ public class AppController {
 
     private String correctWord = "Rainy";
 
+    private boolean hasWon = false;
+
     @FXML
     private void keyPressed(ActionEvent event) {
         Object node = event.getSource();
@@ -48,7 +50,7 @@ public class AppController {
     }
 
     public void getInput(String key) {
-        if (letterBoxChildren == null || currentRowIndex > letterBoxChildren.size() - 1) {
+        if (letterBoxChildren == null || currentRowIndex > letterBoxChildren.size() - 1 || hasWon) {
             return;
         }
 
@@ -72,18 +74,24 @@ public class AppController {
 
         if (key.equals("ENTER")) {
             List<Node> children = rowBox.getChildren();
-            for (int i = children.size() - 1; i >= 0 ; i--) {
+            for (int i = 0; i < children.size(); i++) {
                 Label label = (Label)children.get(i);
                 String labelText = label.getText();
 
                 if (labelText.isEmpty()) {
                     return;
                 }
+
+                currentWord += labelText;
             }
+
+            if (correctWord.toUpperCase().equals(currentWord))
+                hasWon = true;
 
             animateFlipEffect(children);
 
             currentRowIndex++;
+            currentWord = "";
             return;
         }
 
@@ -124,7 +132,6 @@ public class AppController {
         Timeline timeline = new Timeline();
         double delayOffset = 0.0;
 
-        currentWord = "";
         currentletterIndex = 0;
 
         for (int i = 0; i < nodes.size(); i++) {
@@ -146,14 +153,16 @@ public class AppController {
             delayOffset += 0.3;
         }
 
-        timeline.setOnFinished(e -> animateWinEffect(nodes));
+        if (hasWon)
+            timeline.setOnFinished(e -> animateWinEffect(nodes));
+        else if (currentRowIndex == letterBoxChildren.size())
+            timeline.setOnFinished(e -> createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord)));
 
         timeline.play();
     }
 
     private void setLetterBoxColor(ActionEvent e, Label label) {
         String labelText = label.getText();
-        currentWord += labelText;
 
         if (labelText.equals(correctWord.substring(currentletterIndex, currentletterIndex+1).toUpperCase())) {
             label.setId("letter-box-correct-location");
@@ -172,12 +181,6 @@ public class AppController {
     }
 
     private void animateWinEffect(List<Node> nodes) {
-        if (!correctWord.toUpperCase().equals(currentWord)) {
-            if (currentRowIndex == letterBoxChildren.size())
-                createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord));
-            return;
-        }
-
         Timeline timeline = new Timeline();
         double delayOffset = 0.0;
 
