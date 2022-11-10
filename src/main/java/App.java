@@ -24,16 +24,21 @@ public class App extends Application {
         scene = new Scene(loadFXML("wordle"), minWidth, minHeight);
         scene.getStylesheets().add("stylesheet.css");
 
+        // Allows the controller class to get keyboard input from the user
         scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
             if (controller != null)
                 controller.getInput(key.getCode().name());
         });
 
         stage.setTitle("Wordle");
+
+        // Set stage min size and specify that it is resizable
         stage.setMinWidth(minWidth);
         stage.setMinHeight(minHeight);
         stage.setResizable(true);
+
         stage.setScene(scene);
+
         stage.show();
     }
 
@@ -41,6 +46,7 @@ public class App extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         Parent parent = fxmlLoader.load();
 
+        // Store a reference to the AppController instance to access in the start method
         controller = (AppController)fxmlLoader.getController();
 
         return parent;

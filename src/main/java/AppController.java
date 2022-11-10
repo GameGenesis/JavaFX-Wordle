@@ -13,7 +13,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -21,37 +20,40 @@ import javafx.util.Duration;
 
 public class AppController {
 
-    @FXML
-    private AnchorPane lineAnchor;
-
+    // The VBox that contains the rows of letter box labels
     @FXML
     private VBox letterBox;
 
+    // A list of HBoxes that are children of the letterBox VBox parent node
     private List<Node> letterBoxChildren;
-    private HBox rowBox;
+    // The HBox that is currently being accessed
+    private HBox currentRow;
+    // The current row that is receiving user input
     private int currentRowIndex = 0;
 
+    // The VBox that contains the rows of keyboard buttons
     @FXML
     private VBox keyBox;
 
+    // A list of Buttons that are contained within the HBoxes in keyBox
     private List<Node> keyBoxChildren;
+    // A list of the revealed letters that are in the correct location in the word
     private List<String> correctLetters;
+    // A list of the revealed letters that are in the incorrect location in the word
     private List<String> misplacedLetters;
+    // A list of the revealed letters that are not in the word
     private List<String> wrongLetters;
 
+    // The index of the label in the current row to update the color of
     private int currentletterIndex = 0;
+    // The word that was submitted as an attempt (The word that the user typed on the current row)
     private String currentWord = "";
 
+    // The correct word
     private String correctWord = "Rainy";
 
+    // Specifies whether the win animation should be played and whether user input should be disabled (if the player has won)
     private boolean hasWon = false;
-
-    @FXML
-    private void keyPressed(ActionEvent event) {
-        Object node = event.getSource();
-        Button button = (Button)node;
-        getInput(button.getText());
-    }
 
     @FXML
     private void initialize() {
@@ -70,15 +72,23 @@ public class AppController {
         wrongLetters = new ArrayList<>();
     }
 
+    // Called when an onscreen keyboard button is pressed
+    @FXML
+    private void keyPressed(ActionEvent event) {
+        Object node = event.getSource();
+        Button button = (Button)node;
+        getInput(button.getText());
+    }
+
     public void getInput(String key) {
         if (letterBoxChildren == null || currentRowIndex > letterBoxChildren.size() - 1 || hasWon) {
             return;
         }
 
-        rowBox = (HBox)letterBoxChildren.get(currentRowIndex);
+        currentRow = (HBox)letterBoxChildren.get(currentRowIndex);
 
         if (key.equals("BACK_SPACE")) {
-            List<Node> children = rowBox.getChildren();
+            List<Node> children = currentRow.getChildren();
             for (int i = children.size() - 1; i >= 0; i--) {
                 Label label = (Label)children.get(i);
 
@@ -94,7 +104,7 @@ public class AppController {
         }
 
         if (key.equals("ENTER")) {
-            List<Node> children = rowBox.getChildren();
+            List<Node> children = currentRow.getChildren();
             for (int i = 0; i < children.size(); i++) {
                 Label label = (Label)children.get(i);
                 String labelText = label.getText();
@@ -126,7 +136,7 @@ public class AppController {
             return;
         }
 
-        for (Node child : rowBox.getChildren()) {
+        for (Node child : currentRow.getChildren()) {
             Label label = (Label)child;
 
             if (label.getText().isEmpty()) {
