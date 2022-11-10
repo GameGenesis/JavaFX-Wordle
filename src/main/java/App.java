@@ -3,6 +3,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
@@ -31,6 +32,7 @@ public class App extends Application {
         });
 
         stage.setTitle("Wordle");
+        stage.getIcons().add(new Image("icon.png"));
 
         // Set stage min size and specify that it is resizable
         stage.setMinWidth(minWidth);
