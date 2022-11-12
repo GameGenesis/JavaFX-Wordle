@@ -644,7 +644,7 @@
                   </ImageView>
                </children>
             </HBox>
-            <ImageView fitHeight="420.0" fitWidth="370.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="378.0" fitWidth="377.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@wordle-tutorial.png" />
                </image>
