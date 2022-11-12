@@ -22,7 +22,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -71,6 +73,12 @@ public class AppController {
     private VBox popupList;
 
     @FXML
+    private Pane helpPaneBackground;
+
+    @FXML
+    private VBox helpPane;
+
+    @FXML
     private void initialize() {
         getWord();
         letterBoxChildren = letterBox.getChildren();
@@ -96,6 +104,18 @@ public class AppController {
         getInput(button.getText());
     }
 
+    @FXML
+    private void showHelpPane(MouseEvent event) {
+        helpPaneBackground.setVisible(true);
+        helpPane.setVisible(true);
+    }
+
+    @FXML
+    private void hideHelpPane(MouseEvent event) {
+        helpPaneBackground.setVisible(false);
+        helpPane.setVisible(false);
+    }
+
     private void getWord() {
         try {
             String content = new String(Files.readAllBytes(Paths.get("src/main/resources/WordList.json")));
@@ -108,7 +128,7 @@ public class AppController {
             e.printStackTrace();
         }
 
-        System.out.println(correctWord);
+        // System.out.println(correctWord);
     }
 
     public void getInput(String key) {
