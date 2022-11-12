@@ -14,6 +14,8 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -23,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -65,6 +68,9 @@ public class AppController {
     private boolean hasWon = false;
 
     @FXML
+    private VBox popupList;
+
+    @FXML
     private void initialize() {
         getWord();
         letterBoxChildren = letterBox.getChildren();
@@ -101,6 +107,8 @@ public class AppController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        System.out.println(correctWord);
     }
 
     public void getInput(String key) {
@@ -136,6 +144,7 @@ public class AppController {
                 String labelText = label.getText();
 
                 if (labelText.isEmpty()) {
+                    createDialog("Not enough letters", 1.1);
                     animateInvalidWordEffect(children);
                     return;
                 }
@@ -145,7 +154,7 @@ public class AppController {
 
             // Checks if the entered text forms a real word
             if (!wordList.contains(currentWord.toLowerCase())) {
-                createDialog("Invalid Attempt", String.format("%s is not a word!", currentWord));
+                createDialog(String.format("%s is not in the word list", currentWord), 1.1);
                 animateInvalidWordEffect(children);
                 return;
             }
@@ -228,7 +237,7 @@ public class AppController {
         else if (currentRowIndex == letterBoxChildren.size() - 1) {
             timeline.setOnFinished(e -> {
                 setKeyboardButtonColors();
-                createDialog("Incorrect Guess", String.format("You did not guess the word! The word was %s", correctWord));
+                createDialog(String.format("The word was %s", correctWord), 4.0);
             });
         }
         else {
@@ -311,7 +320,7 @@ public class AppController {
             delayOffset += 0.15;
         }
 
-        timeline.setOnFinished(e -> createDialog("Correct Guess", "Awesome! You figured out the word!"));
+        timeline.setOnFinished(e -> createDialog("Awesome! You figured out the word!", 4.0));
         timeline.play();
     }
 
@@ -348,7 +357,47 @@ public class AppController {
         timeline.play();
     }
 
-    private void createDialog(String title, String content) {
+    private void createDialog(String content, double duration) {
+        Label popupLabel = new Label();
+        popupLabel.setId("popup-label");
+        popupLabel.setOpacity(0.9);
+        popupLabel.setText(content);
+        popupLabel.setTextFill(Color.WHITE);
+        popupLabel.setFont(new Font("Lucida Sans Demibold Roman", 14.0));
+        popupLabel.setPadding(new Insets(8.0, 12.0, 8.0, 12.0));
+        popupLabel.setAlignment(Pos.CENTER);
+
+        popupList.getChildren().add(popupLabel);
+
+        Timeline timeline = new Timeline();
+
+        KeyFrame key0 = new KeyFrame(Duration.seconds(0.0), e -> popupLabel.setVisible(true));
+
+        KeyValue value1 = new KeyValue(popupLabel.opacityProperty(), 0.9);
+        KeyValue value1X = new KeyValue(popupLabel.scaleXProperty(), 0.0);
+        KeyValue value1Y = new KeyValue(popupLabel.scaleYProperty(), 0.0);
+        KeyFrame key1 = new KeyFrame(Duration.seconds(0.0), value1, value1X, value1Y);
+
+        KeyValue value2X = new KeyValue(popupLabel.scaleXProperty(), 1.4);
+        KeyValue value2Y = new KeyValue(popupLabel.scaleYProperty(), 1.4);
+        KeyFrame key2 = new KeyFrame(Duration.seconds(0.1), value2X, value2Y);
+
+        KeyValue value3X = new KeyValue(popupLabel.scaleXProperty(), 1.0);
+        KeyValue value3Y = new KeyValue(popupLabel.scaleYProperty(), 1.0);
+        KeyFrame key3 = new KeyFrame(Duration.seconds(0.13), value3X, value3Y);
+
+        KeyValue value4 = new KeyValue(popupLabel.opacityProperty(), 0.9);
+        KeyFrame key4 = new KeyFrame(Duration.seconds(duration), value4);
+
+        KeyValue value5 = new KeyValue(popupLabel.opacityProperty(), 0.0);
+        KeyFrame key5 = new KeyFrame(Duration.seconds(duration + 0.4), value5);
+
+        timeline.getKeyFrames().addAll(key0, key1, key2, key3, key4, key5);
+        timeline.setOnFinished(e -> popupList.getChildren().remove(0));
+        timeline.play();
+    }
+
+    private void createAlertDialogBox(String title, String content) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -358,6 +407,7 @@ public class AppController {
         stage.getIcons().add(new Image(this.getClass().getResource("icon.png").toString()));
 
         Platform.runLater(alert::showAndWait);
+
     }
 
 }
