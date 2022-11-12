@@ -106,14 +106,12 @@ public class AppController {
 
     @FXML
     private void showHelpPane(MouseEvent event) {
-        helpPaneBackground.setVisible(true);
-        helpPane.setVisible(true);
+        animateHelpPane(false);
     }
 
     @FXML
     private void hideHelpPane(MouseEvent event) {
-        helpPaneBackground.setVisible(false);
-        helpPane.setVisible(false);
+        animateHelpPane(true);
     }
 
     private void getWord() {
@@ -257,7 +255,7 @@ public class AppController {
         else if (currentRowIndex == letterBoxChildren.size() - 1) {
             timeline.setOnFinished(e -> {
                 setKeyboardButtonColors();
-                createDialog(String.format("The word was %s", correctWord), 4.0);
+                createDialog(String.format("The word was %s", correctWord), 4.5);
             });
         }
         else {
@@ -340,7 +338,7 @@ public class AppController {
             delayOffset += 0.15;
         }
 
-        timeline.setOnFinished(e -> createDialog("Awesome! You figured out the word!", 4.0));
+        timeline.setOnFinished(e -> createDialog("Awesome! You figured out the word!", 4.5));
         timeline.play();
     }
 
@@ -414,6 +412,37 @@ public class AppController {
 
         timeline.getKeyFrames().addAll(key0, key1, key2, key3, key4, key5);
         timeline.setOnFinished(e -> popupList.getChildren().remove(0));
+        timeline.play();
+    }
+
+    private void animateHelpPane(boolean reverse) {
+        helpPaneBackground.setVisible(true);
+        helpPane.setVisible(true);
+
+        Timeline timeline = new Timeline();
+
+        KeyValue value0BG = new KeyValue(helpPaneBackground.opacityProperty(), 0.0);
+        KeyValue value0Y = new KeyValue(helpPane.translateYProperty(), 0);
+        KeyValue value0 = new KeyValue(helpPane.opacityProperty(), 0.0);
+        KeyFrame key0 = new KeyFrame(Duration.seconds(0.0), value0BG, value0Y, value0);
+
+        KeyValue value1 = new KeyValue(helpPaneBackground.opacityProperty(), 0.35);
+        KeyFrame key1 = new KeyFrame(Duration.seconds(0.1), value1);
+
+        KeyValue value2 = new KeyValue(helpPane.opacityProperty(), 1.0);
+        KeyValue value2Y = new KeyValue(helpPane.translateYProperty(), -45);
+        KeyFrame key2 = new KeyFrame(Duration.seconds(0.24), value2, value2Y);
+
+        timeline.getKeyFrames().addAll(key0, key1, key2);
+
+        if (reverse) {
+            timeline.setRate(-1.0);
+            timeline.setOnFinished(e -> {
+                helpPaneBackground.setVisible(false);
+                helpPane.setVisible(false);
+            });
+        }
+
         timeline.play();
     }
 
