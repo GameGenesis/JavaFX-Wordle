@@ -116,13 +116,14 @@ public class AppController {
 
     private void getWord() {
         try {
-            String content = new String(Files.readAllBytes(Paths.get("src/main/resources/WordList.json")));
+            String content = new String(Files.readAllBytes(Paths.get(getClass().getResource("WordList.json").toURI())));
             JSONObject obj = new JSONObject(content);
             JSONArray wordArray = obj.getJSONArray("wordList");
             correctWord = wordArray.getString(new Random().nextInt(wordArray.length()));
 
             wordList = wordArray.toList();
         } catch (Exception e) {
+            correctWord = "Rainy";
             e.printStackTrace();
         }
 
@@ -171,7 +172,7 @@ public class AppController {
             }
 
             // Checks if the entered text forms a real word
-            if (!wordList.contains(currentWord.toLowerCase())) {
+            if (wordList != null && !wordList.contains(currentWord.toLowerCase())) {
                 createDialog(String.format("%s is not in the word list", currentWord), 1.1);
                 animateInvalidWordEffect(children);
                 return;
