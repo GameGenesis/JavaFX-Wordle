@@ -1,7 +1,9 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.json.JSONArray;
@@ -56,6 +58,8 @@ public class AppController {
     private List<String> misplacedLetters;
     // A list of the revealed letters that are not in the word
     private List<String> wrongLetters;
+    // a Hashmap containing the number of occurances of each letter in the correct word
+    private Map<String, Integer> letterMap;
 
     // The index of the label in the current row to update the color of
     private int currentletterIndex = 0;
@@ -120,6 +124,7 @@ public class AppController {
             JSONObject obj = new JSONObject(content);
             JSONArray wordArray = obj.getJSONArray("wordList");
             correctWord = wordArray.getString(new Random().nextInt(wordArray.length()));
+            correctWord = "Rainy";
 
             wordList = wordArray.toList();
         } catch (Exception e) {
@@ -156,6 +161,11 @@ public class AppController {
         if (key.equals("ENTER")) {
             currentWord = "";
 
+            letterMap = new LinkedHashMap<>();
+            for (int i = 0; i < correctWord.length(); i++) {
+                letterMap.merge(correctWord.substring(i, i+1).toUpperCase(), 1, Integer::sum);
+            }
+
             List<Node> children = currentRow.getChildren();
 
             for (int i = 0; i < children.size(); i++) {
@@ -169,6 +179,9 @@ public class AppController {
                 }
 
                 currentWord += labelText;
+
+                if (labelText.equals(correctWord.substring(i, i+1).toUpperCase()))
+                    letterMap.merge(labelText, -1, Integer::sum);
             }
 
             // Checks if the entered text forms a real word
@@ -276,9 +289,11 @@ public class AppController {
             label.setId("letter-box-correct-location");
             label.setTextFill(Color.WHITE);
         }
-        else if (correctWord.toUpperCase().contains(labelText)) {
+        else if (correctWord.toUpperCase().contains(labelText) && letterMap.get(labelText) > 0) {
             if (!misplacedLetters.contains(labelText))
                 misplacedLetters.add(labelText);
+
+            letterMap.merge(labelText, -1, Integer::sum);
 
             label.setId("letter-box-wrong-location");
             label.setTextFill(Color.WHITE);
