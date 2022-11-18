@@ -1,7 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -73,18 +73,23 @@ public class AppController {
     // Specifies whether the win animation should be played and whether user input should be disabled (if the player has won)
     private boolean hasWon = false;
 
+    // The VBox that is contained in the StackPane that holds the list of popup messages
     @FXML
     private VBox popupList;
 
+    // The transparent background pane that appears below the help pane
     @FXML
     private Pane helpPaneBackground;
 
+    // The help pane box that contains the game instructions (tutorial)
     @FXML
     private VBox helpPane;
 
     @FXML
     private void initialize() {
+        // Gets a random word from the word list json file
         getWord();
+
         letterBoxChildren = letterBox.getChildren();
 
         keyBoxChildren = new ArrayList<>();
@@ -100,7 +105,12 @@ public class AppController {
         wrongLetters = new ArrayList<>();
     }
 
-    // Called when an onscreen keyboard button is pressed
+    /**
+     * Called when an onscreen keyboard button is pressed.
+     * Gets the event source button and passes in its text value to the getInput method.
+     * 
+     * @param event The ActionEvent that contains information about the type of event and the event source
+     */
     @FXML
     private void keyPressed(ActionEvent event) {
         Object node = event.getSource();
@@ -108,23 +118,46 @@ public class AppController {
         getInput(button.getText());
     }
 
+    /**
+     * Called when the help button (ImageView) is clicked.
+     * Fades in the help pane background and the help pane.
+     * Translates the help pane upwards.
+     * 
+     * @param event The MouseEvent that contains information about the mouse pointer
+     */
     @FXML
     private void showHelpPane(MouseEvent event) {
         animateHelpPane(false);
     }
 
+    /**
+     * Called when the help pane close button (ImageView) is clicked.
+     * Animates the help pane in reverse - Fades out the help pane background and the help pane.
+     * Translates the help pane downwards.
+     * 
+     * @param event The MouseEvent that contains information about the mouse pointer
+     */
     @FXML
     private void hideHelpPane(MouseEvent event) {
         animateHelpPane(true);
     }
 
+    /**
+     * Tries to read the WordList.json file as a JSONObject.
+     * Then, gets a JSONArray with the name "wordList" from the object.
+     * Gets a random element from the JSONArray and assigns that to correctWord.
+     * Converts the JSONAray to a List and assigns that list to wordList
+     * 
+     * If there is an exception with reading the json file, assigns correctWord to a specificed word
+     */
     private void getWord() {
         try {
             String content = new String(Files.readAllBytes(Paths.get(getClass().getResource("WordList.json").toURI())));
             JSONObject obj = new JSONObject(content);
             JSONArray wordArray = obj.getJSONArray("wordList");
-            correctWord = wordArray.getString(new Random().nextInt(wordArray.length()));
-            correctWord = "Rainy";
+
+            Random random = new Random();
+            correctWord = wordArray.getString(random.nextInt(wordArray.length()));
 
             wordList = wordArray.toList();
         } catch (Exception e) {
@@ -132,61 +165,94 @@ public class AppController {
             e.printStackTrace();
         }
 
-        // System.out.println(correctWord);
     }
 
+    /**
+     * 
+     * @param key
+     */
     public void getInput(String key) {
+        // Checks if the player still hasn't won, the list of HBoxes exists, and that the current row is not greater than the last index of the list
         if (letterBoxChildren == null || currentRowIndex > letterBoxChildren.size() - 1 || hasWon) {
             return;
         }
 
+        // Assigns the current row depending on the currentRowIndex
         currentRow = (HBox)letterBoxChildren.get(currentRowIndex);
 
+        // Check if the current key is BACK_SPACE
         if (key.equals("BACK_SPACE")) {
+            // Gets the list of children of the current row HBox
             List<Node> children = currentRow.getChildren();
+
+            // Loops over the list of children in reverse (to get the last non-empty label)
             for (int i = children.size() - 1; i >= 0; i--) {
+                // Explicit type conversion from Node to Label
                 Label label = (Label)children.get(i);
 
+                // Check if the label text is not empty
                 if (!label.getText().isEmpty()) {
+                    // Remove the label text, update the CSS ID, and change the text color to gray
                     label.setText("");
                     label.setId("letter-box-empty");
                     label.setTextFill(Color.web("#383838"));
+                    // Animate the letter box to betetr indicate that the letter has been cleared
                     animateScalingPingPong(label, 0.07, 0.9, 0.9);
+
+                    // Break so only the last letter is cleared
                     break;
                 }
             }
             return;
         }
 
+        // Check if the current key is ENTER
         if (key.equals("ENTER")) {
+            // Clears the previous current word
             currentWord = "";
 
-            letterMap = new LinkedHashMap<>();
+            // Creates a new hashmap with the letter string as the key and a double representing the number of times it appears in the correct word as a value
+            letterMap = new HashMap<>();
+
+            // Loops over all the letters in the correct word and increments the letter map's corresponding value by 1 for each time that specific letter occurs in the correct word.
+            // The merge method is used with Integer::sum to ensure that if the key doesn't exist, the default value will be set to 1. Otherwise, it will add 1 to the existing value.
             for (int i = 0; i < correctWord.length(); i++) {
                 letterMap.merge(correctWord.substring(i, i+1).toUpperCase(), 1, Integer::sum);
             }
 
+            // Gets the list of children of the current row HBox
             List<Node> children = currentRow.getChildren();
 
+            // Loops over the list of HBox children
             for (int i = 0; i < children.size(); i++) {
+                // Explicit type conversion from Node to Label
                 Label label = (Label)children.get(i);
+                // Gets the label text from the current label
                 String labelText = label.getText();
 
+                // Checks if any of the labels are empty
                 if (labelText.isEmpty()) {
+                    // Create a popup box saying that there aren't enough letters
                     createDialog("Not enough letters", 1.1);
+                    // Animate the letter boxes to better indicate that there aren't enough letters
                     animateInvalidWordEffect(children);
                     return;
                 }
 
+                // Concatenate all the label letters together to form the word or pseudo-word that the player has typed
                 currentWord += labelText;
 
+                // Checks if the current letter in the current word match the letter in the correct word in the same position.
+                // If that is the case, decrement the number of occurrances value corresponding to that letter
                 if (labelText.equals(correctWord.substring(i, i+1).toUpperCase()))
                     letterMap.merge(labelText, -1, Integer::sum);
             }
 
-            // Checks if the entered text forms a real word
+            // If the entered word is not part of the word list
             if (wordList != null && !wordList.contains(currentWord.toLowerCase())) {
+                // Create a popup box displaying that it is not in the word list
                 createDialog(String.format("%s is not in the word list", currentWord), 1.1);
+                // Animate the letter boxes to better indicate that the word is not in the word list
                 animateInvalidWordEffect(children);
                 return;
             }
@@ -196,24 +262,30 @@ public class AppController {
                 hasWon = true;
             }
 
+            // If the entered word is a valid word, animate the letter boxes to flip around and indicate the letter placement (correct location, wrong location, wrong letter)
             animateFlipEffect(children);
 
+            // Increment the current row index
             currentRowIndex++;
             return;
         }
 
+        // Proceed only if the current key is one character long
         if (key.length() != 1) {
             return;
         }
 
-        char[] letters = key.toCharArray();
-        if (!Character.isLetter(letters[0])) {
+        // Check if the key is a letter by converting to char and checking
+        if (!Character.isLetter(key.charAt(0))) {
             return;
         }
 
+        // Loop over the list of current row children
         for (Node child : currentRow.getChildren()) {
+            // Explicit type conversion from Node to Label
             Label label = (Label)child;
 
+            // Check if the label text is empty
             if (label.getText().isEmpty()) {
                 label.setText(key);
                 label.setId("letter-box-filled");
@@ -397,7 +469,7 @@ public class AppController {
         popupLabel.setOpacity(0.9);
         popupLabel.setText(content);
         popupLabel.setTextFill(Color.WHITE);
-        popupLabel.setFont(new Font("Lucida Sans Demibold Roman", 14.0));
+        popupLabel.setFont(new Font("Lucida Sans Typewriter Bold", 14.0));
         popupLabel.setPadding(new Insets(8.0, 12.0, 8.0, 12.0));
         popupLabel.setAlignment(Pos.CENTER);
 
