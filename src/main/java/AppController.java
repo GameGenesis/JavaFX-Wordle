@@ -111,7 +111,7 @@ public class AppController {
     /**
      * Called when an onscreen keyboard button is pressed.
      * Gets the event source button and passes in its text value to the getInput method.
-     * 
+     *
      * @param event The ActionEvent that contains information about the type of event and the event source
      */
     @FXML
@@ -125,7 +125,7 @@ public class AppController {
      * Called when the help button (ImageView) is clicked.
      * Fades in the help pane background and the help pane.
      * Translates the help pane upwards.
-     * 
+     *
      * @param event The MouseEvent that contains information about the mouse pointer
      */
     @FXML
@@ -137,7 +137,7 @@ public class AppController {
      * Called when the help pane close button (ImageView) is clicked.
      * Animates the help pane in reverse - Fades out the help pane background and the help pane.
      * Translates the help pane downwards.
-     * 
+     *
      * @param event The MouseEvent that contains information about the mouse pointer
      */
     @FXML
@@ -150,7 +150,7 @@ public class AppController {
      * Then, gets a JSONArray with the name "wordList" from the object.
      * Gets a random element from the JSONArray and assigns that to correctWord.
      * Converts the JSONAray to a List and assigns that list to wordList
-     * 
+     *
      * If there is an exception with reading the json file, assigns correctWord to a specificed word
      */
     private void getWord() {
@@ -177,7 +177,7 @@ public class AppController {
      * If that is the case, animate the letter boxes and indicate through styling what letters are the correct or incorrect locations,
      * and which letters are not in the correct word.
      * If the key is a letter, fill the first empty label in the row with that letter.
-     * 
+     *
      * @param key The string that corresponds to the key that has been pressed
      */
     public void getInput(String key) {
@@ -242,7 +242,7 @@ public class AppController {
                 // Checks if any of the labels are empty
                 if (labelText.isEmpty()) {
                     // Create a popup box saying that there aren't enough letters
-                    createDialog("Not enough letters", 1.1);
+                    createPopup("Not enough letters", 1.1);
                     // Animate the letter boxes to better indicate that there aren't enough letters
                     animateInvalidWordEffect(children);
                     return;
@@ -260,7 +260,7 @@ public class AppController {
             // If the entered word is not part of the word list
             if (wordList != null && !wordList.contains(currentWord.toLowerCase())) {
                 // Create a popup box displaying that it is not in the word list
-                createDialog(String.format("%s is not in the word list", currentWord), 1.1);
+                createPopup(String.format("%s is not in the word list", currentWord), 1.1);
                 // Animate the letter boxes to better indicate that the word is not in the word list
                 animateInvalidWordEffect(children);
                 return;
@@ -312,7 +312,7 @@ public class AppController {
      * Animates the scale factor of a node in two cycles, normally and in reverse.
      * The first cycle involves transitioning to the newly-specified scale and the second cycle
      * involves transitioning back to the original state
-     * 
+     *
      * @param node The node to animate
      * @param duration The duration (in seconds) that one cycle of the animation lasts
      * @param xScale The new x-scale multiplicative factor (original is 1.0)
@@ -335,15 +335,16 @@ public class AppController {
     /**
      * Animates a flip animation for a list of nodes (labels) and sets the corresponding
      * letter box style and color for each label.
-     * 
+     *
      * Also, handles the win animation (after the flip animation has been completed) if the current word matches the correct word.
      * Handles the lose state popup dialog.
      * Calls setKeyboardButtonColors() method after the animation to update the keyboard button colors
-     * 
+     *
      * @param nodes A list of label nodes
      */
     private void animateFlipEffect(List<Node> nodes) {
         Timeline timeline = new Timeline();
+
         // A delay between each successive label so that all the labels do not animate synchronously,
         // but instead animate sequentially in a back-to-back fashion
         double delayOffset = 0.0;
@@ -351,7 +352,7 @@ public class AppController {
         // The duration for one label animation
         double duration = 0.3;
 
-        /* 
+        /*
          * Reset the index position of the current letter.
          * This is used to keep track of the current label fot the setLetterBoxColor() method.
          * This is because the lambda only accepts final values as parameters,
@@ -400,7 +401,7 @@ public class AppController {
             // Set the keyboard button colors and create a popup that displays the correct word when the current animation finishes
             timeline.setOnFinished(e -> {
                 setKeyboardButtonColors();
-                createDialog(String.format("The word was %s", correctWord), 4.5);
+                createPopup(String.format("The word was %s", correctWord), 4.5);
             });
         }
         // If the player has neither won not lost
@@ -414,11 +415,11 @@ public class AppController {
 
     /**
      * Updates the label styling to indicate the positioning of the letter in the correct word.
-     * 
+     *
      * Green: Letter exists in the correct word and in the correct location
      * Yellow: Letter exists in the correct word but in the incorrect location
      * Gray: Letter does not exist in the correct word
-     * 
+     *
      * @param label The current letter box label to style
      */
     private void setLetterBoxColor(Label label) {
@@ -467,7 +468,7 @@ public class AppController {
     /**
      * Updates the keyboard button styling to indicate the positioning of the letters
      * that occur or do not occur in the correct word.
-     * 
+     *
      * Green: Letter exists in the correct word and in the correct location
      * Yellow: Letter exists in the correct word but in the incorrect location
      * Gray: Letter does not exist in the correct word
@@ -500,11 +501,21 @@ public class AppController {
         }
     }
 
+    /**
+     * Animates a win jiggle animation for a list of nodes (labels)
+     *
+     * @param nodes A list of label nodes
+     */
     private void animateWinEffect(List<Node> nodes) {
         Timeline timeline = new Timeline();
+
+        // A delay between each successive label so that all the labels do not animate completely synchronously,
+        // but with a small delay between each consecutive label
         double delayOffset = 0.0;
 
+        // Loop over the list of nodes
         for (Node node : nodes) {
+            // Set the initial value as a key frame so that the successive labels do not start animating immediately
             KeyValue value0 = new KeyValue(node.translateYProperty(), 0);
             KeyFrame key0 = new KeyFrame(Duration.seconds(delayOffset), value0);
 
@@ -522,18 +533,30 @@ public class AppController {
 
             timeline.getKeyFrames().addAll(key0, key1, key2, key3, key4);
 
+            // A delay offset corresponding to a quarter of the total duration of the animation for one letter box
             delayOffset += 0.15;
         }
 
-        timeline.setOnFinished(e -> createDialog("Awesome! You figured out the word!", 4.5));
+        // Creates a popup dialog congratulating the user on guessing the word when the animation is finished
+        timeline.setOnFinished(e -> createPopup("Awesome! You figured out the word!", 4.5));
         timeline.play();
     }
 
+    /**
+     * Animates an invalid word jiggle animation for a list of nodes (labels)
+     *
+     * @param nodes A list of label nodes
+     */
     private void animateInvalidWordEffect(List<Node> nodes) {
         Timeline timeline = new Timeline();
+
+        // A delay between each successive label so that all the labels do not animate completely synchronously,
+        // but with a small delay between each consecutive label
         double delayOffset = 0.0;
 
-        for (Node node : nodes) {          
+        // Loop over the list of nodes
+        for (Node node : nodes) {
+            // Set the initial values as a key frame so that the successive labels do not start animating immediately
             KeyValue value0 = new KeyValue(node.rotateProperty(), 0);
             KeyValue value0X = new KeyValue(node.scaleXProperty(), 1.0);
             KeyValue value0Y = new KeyValue(node.scaleYProperty(), 1.0);
@@ -556,26 +579,36 @@ public class AppController {
 
             timeline.getKeyFrames().addAll(key0, key1, key2, key3);
 
+            // A delay offset corresponding to a fifth of the total duration of the animation for one letter box
             delayOffset += 0.05;
         }
 
         timeline.play();
     }
 
-    private void createDialog(String content, double duration) {
+    /**
+     * Creates a popup dialog with the specified text and for the specified duration.
+     *
+     * @param text The text to be displayed in the popup
+     * @param duration The duration to display the popup for (including pop in animation) before fading it out
+     */
+    private void createPopup(String text, double duration) {
+        // Creates a new label with the corresponding properties and sets its text
         Label popupLabel = new Label();
         popupLabel.setId("popup-label");
         popupLabel.setOpacity(0.9);
-        popupLabel.setText(content);
+        popupLabel.setText(text);
         popupLabel.setTextFill(Color.WHITE);
         popupLabel.setFont(new Font("Lucida Sans Typewriter Bold", 14.0));
         popupLabel.setPadding(new Insets(8.0, 12.0, 8.0, 12.0));
         popupLabel.setAlignment(Pos.CENTER);
 
+        // Add the label to the popupList VBox (can stack multiple at a time in the VBox)
         popupList.getChildren().add(popupLabel);
 
         Timeline timeline = new Timeline();
 
+        // Set the label as visible
         KeyFrame key0 = new KeyFrame(Duration.seconds(0.0), e -> popupLabel.setVisible(true));
 
         KeyValue value1 = new KeyValue(popupLabel.opacityProperty(), 0.9);
@@ -598,16 +631,25 @@ public class AppController {
         KeyFrame key5 = new KeyFrame(Duration.seconds(duration + 0.4), value5);
 
         timeline.getKeyFrames().addAll(key0, key1, key2, key3, key4, key5);
+        // Remove the label from the popuList VBox when the animation ends
         timeline.setOnFinished(e -> popupList.getChildren().remove(0));
         timeline.play();
     }
 
+    /**
+     * Fades in the help pane background, then fades in the help pane and translates it upwards.
+     * This animation can also be played in reverse.
+     *
+     * @param reverse Whether or not the animation should be played in reverse
+     */
     private void animateHelpPane(boolean reverse) {
+        // Set the help pane background and the help pane as visible
         helpPaneBackground.setVisible(true);
         helpPane.setVisible(true);
 
         Timeline timeline = new Timeline();
 
+        // Set the initial values as the first key frame
         KeyValue value0BG = new KeyValue(helpPaneBackground.opacityProperty(), 0.0);
         KeyValue value0Y = new KeyValue(helpPane.translateYProperty(), 0);
         KeyValue value0 = new KeyValue(helpPane.opacityProperty(), 0.0);
@@ -622,8 +664,13 @@ public class AppController {
 
         timeline.getKeyFrames().addAll(key0, key1, key2);
 
+        // If the animation should play in reverse
         if (reverse) {
+            // Defines the direction/speed at which the Animation is expected to be played
+            // (-1.0 means the animation will be played in reverse or backwards)
             timeline.setRate(-1.0);
+
+            // Set the help pane background and the help pane as not visible when the animation ends (for the reverse animation)
             timeline.setOnFinished(e -> {
                 helpPaneBackground.setVisible(false);
                 helpPane.setVisible(false);
@@ -633,17 +680,26 @@ public class AppController {
         timeline.play();
     }
 
+    /**
+     * [Obsolete]
+     * Creates a popup alert dialog window with a title and content
+     *
+     * @param title The title of the alert window
+     * @param content The content text of the alert window
+     */
     private void createAlertDialogBox(String title, String content) {
+        // Create the alert window with a title and content (no header text)
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
 
+        // Set the icon of the alert window to the same icon as the original application
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(this.getClass().getResource("icon.png").toString()));
 
+        // Shows the window and waits after any animations have stopped running (the main JavaFX Application thread is available)
         Platform.runLater(alert::showAndWait);
-
     }
 
 }
