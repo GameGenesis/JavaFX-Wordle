@@ -7,13 +7,14 @@
 
 Name: Rayan Kaissi
 
-I think my program is a level 4+ because .... <complete this>
+I think my program is a level 4+ because I have included the extra features below.
 
-The extra features I included in my program are: 
-
-<briefly describe your features in dot-jot form>
-
-
+The extra features I included in my program are:
+- CSS Styling for labels, buttons, and panes
+- Animations for winning, running out of guesses, invalid word, typing a letter, and hitting backspace
+- Popup boxes within the same window that animate in and out
+- A help popup box that animates in and out with instructions on how to play
+- An on-screen keyboard with buttons that change colors to show the letters that occur in the correct or incorrect location, or that do not occur in the correct word
 
 
 ## The Program [KAT]

@@ -9,17 +9,29 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     public static Scene scene;
+    // A reference to the AppController
     private static AppController controller;
 
+    // The minimum width and height of the main Application window
     private static final int minWidth = 480;
     private static final int minHeight = 720;
 
+    /**
+     * The main entry point for all JavaFX applications.
+     * The start method is called after the init method has returned,
+     * and after the system is ready for the application to begin running.
+     * 
+     * <p>
+     * 
+     * NOTE: This method is called on the JavaFX Application Thread.
+     * 
+     * @param stage the primary stage for this application, onto which the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be primary stages. 
+     * @throws IOException
+     */
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("wordle"), minWidth, minHeight);
@@ -44,6 +56,14 @@ public class App extends Application {
         stage.show();
     }
 
+    /**
+     * Loads the specified fxml file as the root parent node of the scene (containing all the children nodes).
+     * Stores a reference to the AppController instance to access in the start method
+     * 
+     * @param fxml A string containing the name of the fxml file to load (without the extension)
+     * @return The Parent root that is the base class for all nodes that have children in the scene graph.
+     * @throws IOException
+     */
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         Parent parent = fxmlLoader.load();

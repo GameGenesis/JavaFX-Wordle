@@ -86,6 +86,12 @@ public class AppController {
     @FXML
     private VBox helpPane;
 
+    /**
+     * Called after the constructor.
+     * 
+     * Gets a random word from the word list, assigns the letterBoxChildren and keyBoxChildren, and
+     * initializes the lists of letters for the keyboard button styling
+     */
     @FXML
     private void initialize() {
         // Gets a random word from the WordList json file
