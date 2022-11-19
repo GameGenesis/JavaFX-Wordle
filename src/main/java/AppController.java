@@ -412,49 +412,87 @@ public class AppController {
         timeline.play();
     }
 
+    /**
+     * Updates the label styling to indicate the positioning of the letter in the correct word.
+     * 
+     * Green: Letter exists in the correct word and in the correct location
+     * Yellow: Letter exists in the correct word but in the incorrect location
+     * Gray: Letter does not exist in the correct word
+     * 
+     * @param label The current letter box label to style
+     */
     private void setLetterBoxColor(Label label) {
         String labelText = label.getText();
 
+        // Check if the letter corresponding to the current label matches the letter in the correct word in the same location
         if (labelText.equals(correctWord.substring(currentletterIndex, currentletterIndex+1).toUpperCase())) {
+            // Add the current letter to the list of correct letters (for the keyboard button colors)
             if (!correctLetters.contains(labelText))
                 correctLetters.add(labelText);
 
+            // Update the letter box style - change background color to green and text fill to white
             label.setId("letter-box-correct-location");
             label.setTextFill(Color.WHITE);
         }
+        // Check if the correct word contains the current letter
+        // and that the map entry corresponding to the current letter has a value greater than 0
         else if (correctWord.toUpperCase().contains(labelText) && letterMap.get(labelText) > 0) {
+            // Add the current letter to the list of misplaced letters (for the keyboard button colors)
             if (!misplacedLetters.contains(labelText))
                 misplacedLetters.add(labelText);
 
+            // Decrement the occurrances value corresponding to the current letter in the letter hashmap
+            // This will signify that one less occurance of the letter needs to be accounted for.
             letterMap.merge(labelText, -1, Integer::sum);
 
+            // Update the letter box style - change background color to yellow and text fill to white
             label.setId("letter-box-wrong-location");
             label.setTextFill(Color.WHITE);
         }
+        // If the letter does not occur in the correct word at all
         else {
+            // Add the current letter to the list of wrong letters (for the keyboard button colors)
             if (!wrongLetters.contains(labelText))
                 wrongLetters.add(labelText);
 
+            // Update the letter box style - change background color to gray and text fill to white
             label.setId("letter-box-wrong-letter");
             label.setTextFill(Color.WHITE);
         }
 
+        // Increment the current letter index (for the next method call)
         currentletterIndex++;
     }
 
+    /**
+     * Updates the keyboard button styling to indicate the positioning of the letters
+     * that occur or do not occur in the correct word.
+     * 
+     * Green: Letter exists in the correct word and in the correct location
+     * Yellow: Letter exists in the correct word but in the incorrect location
+     * Gray: Letter does not exist in the correct word
+     */
     private void setKeyboardButtonColors() {
+        // Loop over all the keyboxChildren VBox children
         for (Node key : keyBoxChildren) {
+            // Explicit type conversion from Node to Button
             Button button = (Button)key;
             String buttonText = button.getText();
 
+            // If current button letter is contained in the correctLetters list,
+            // update the button styling - change background color to green and text fill to white
             if (correctLetters.contains(buttonText)) {
                 button.setId("keyboard-button-correct-location");
                 button.setTextFill(Color.WHITE);
             }
+            // If current button letter is contained in the misplacedLetters list,
+            // update the button styling - change background color to yellow and text fill to white
             else if (misplacedLetters.contains(buttonText)) {
                 button.setId("keyboard-button-wrong-location");
                 button.setTextFill(Color.WHITE);
             }
+            // If current button letter is contained in the wrongLetters list,
+            // update the button styling - change background color to gray and text fill to white
             else if (wrongLetters.contains(buttonText)) {
                 button.setId("keyboard-button-wrong-letter");
                 button.setTextFill(Color.WHITE);
