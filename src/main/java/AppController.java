@@ -1,10 +1,11 @@
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +51,7 @@ public class AppController {
     @FXML
     private VBox keyBox;
 
-    // A list of Buttons that are contained within the HBoxes in keyBox
+    // A list of button nodes (keyboard buttons) that are contained within the HBoxes in keyBox
     private List<Node> keyBoxChildren;
     // A list of the revealed letters that are in the correct location in the word
     private List<String> correctLetters;
@@ -87,19 +88,21 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        // Gets a random word from the word list json file
+        // Gets a random word from the WordList json file
         getWord();
 
+        // Gets the children of the parent VBox that contains all the letter box rows
         letterBoxChildren = letterBox.getChildren();
 
+        // Gets all the keyboard keys and stores them in a list
         keyBoxChildren = new ArrayList<>();
         List<Node> hboxChildren = keyBox.getChildren();
-
         for (Node child : hboxChildren) {
             HBox hbox = (HBox)child;
             keyBoxChildren.addAll(hbox.getChildren());
         }
 
+        // Initialize the lists of letters
         correctLetters = new ArrayList<>();
         misplacedLetters = new ArrayList<>();
         wrongLetters = new ArrayList<>();
@@ -168,8 +171,14 @@ public class AppController {
     }
 
     /**
+     * Decides what to do based on the key press.
+     * If the key is Back Space, remove the last-typed letter (clear the last non-empty label).
+     * If the key is Enter, check that all the labels are filled and the letters compose a word that is contained in the word list.
+     * If that is the case, animate the letter boxes and indicate through styling what letters are the correct or incorrect locations,
+     * and which letters are not in the correct word.
+     * If the key is a letter, fill the first empty label in the row with that letter.
      * 
-     * @param key
+     * @param key The string that corresponds to the key that has been pressed
      */
     public void getInput(String key) {
         // Checks if the player still hasn't won, the list of HBoxes exists, and that the current row is not greater than the last index of the list
@@ -280,21 +289,35 @@ public class AppController {
             return;
         }
 
-        // Loop over the list of current row children
+        // Loop over the list of current row children and fill the first empty letter box with the typed letter
         for (Node child : currentRow.getChildren()) {
             // Explicit type conversion from Node to Label
             Label label = (Label)child;
 
             // Check if the label text is empty
             if (label.getText().isEmpty()) {
+                // Set the label text to the key code
                 label.setText(key);
+                // Update the CSS ID (Updates the border color)
                 label.setId("letter-box-filled");
+                // Animate the letter box to better indicate that the label has been filled
                 animateScalingPingPong(label, 0.08, 1.1, 1.1);
+                // Break so as not to fill the rest of the labels (only the first empty one)
                 break;
             }
         }
     }
 
+    /**
+     * Animates the scale factor of a node in two cycles, normally and in reverse.
+     * The first cycle involves transitioning to the newly-specified scale and the second cycle
+     * involves transitioning back to the original state
+     * 
+     * @param node The node to animate
+     * @param duration The duration (in seconds) that one cycle of the animation lasts
+     * @param xScale The new x-scale multiplicative factor (original is 1.0)
+     * @param yScale The new y-scale multiplicative factor (original is 1.0)
+     */
     private void animateScalingPingPong(Node node, double duration, double xScale, double yScale) {
         ScaleTransition transition = new ScaleTransition(Duration.seconds(duration), node);
         transition.setToX(xScale);
@@ -302,49 +325,87 @@ public class AppController {
 
         transition.setAutoReverse(true);
         transition.setCycleCount(2);
+
+        // Transition interpolation (left in for future reference)
         // transition.setInterpolator(Interpolator.EASE_OUT);
 
         transition.play();
     }
 
+    /**
+     * Animates a flip animation for a list of nodes (labels) and sets the corresponding
+     * letter box style and color for each label.
+     * 
+     * Also, handles the win animation (after the flip animation has been completed) if the current word matches the correct word.
+     * Handles the lose state popup dialog.
+     * Calls setKeyboardButtonColors() method after the animation to update the keyboard button colors
+     * 
+     * @param nodes A list of label nodes
+     */
     private void animateFlipEffect(List<Node> nodes) {
         Timeline timeline = new Timeline();
+        // A delay between each successive label so that all the labels do not animate synchronously,
+        // but instead animate sequentially in a back-to-back fashion
         double delayOffset = 0.0;
 
+        // The duration for one label animation
+        double duration = 0.3;
+
+        /* 
+         * Reset the index position of the current letter.
+         * This is used to keep track of the current label fot the setLetterBoxColor() method.
+         * This is because the lambda only accepts final values as parameters,
+         * so that the index must be stored as a mutable variable.
+         */
         currentletterIndex = 0;
 
+        // Loop over the list of nodes
         for (int i = 0; i < nodes.size(); i++) {
+            // Explicit type conversion from Node to Label
             Label label = (Label)nodes.get(i);
 
+            // Set the initial value as a key frame so that the successive labels do not start animating immediately
             KeyValue value0 = new KeyValue(label.scaleYProperty(), 1.0);
             KeyFrame key0 = new KeyFrame(Duration.seconds(delayOffset), value0);
 
+            // Scale the Y down to zero to simulate the first half of the flip
             KeyValue value1 = new KeyValue(label.scaleYProperty(), 0.0);
-            KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + 0.15), value1);
+            KeyFrame key1 = new KeyFrame(Duration.seconds(delayOffset + (duration / 2.0)), value1);
 
-            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + 0.15), e -> { setLetterBoxColor(label); });
+            // Update the letter box styling when not visible (y-scale set to zero)
+            KeyFrame key2 = new KeyFrame(Duration.seconds(delayOffset + (duration / 2.0)), e -> { setLetterBoxColor(label); });
 
+            // Scale the Y back to one to simulate the second half of the flip
             KeyValue value3 = new KeyValue(label.scaleYProperty(), 1.0);
-            KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + 0.3), value3);
+            KeyFrame key3 = new KeyFrame(Duration.seconds(delayOffset + duration), value3);
 
+            // Add all the key frames to the timeline
             timeline.getKeyFrames().addAll(key0, key1, key2, key3);
 
-            delayOffset += 0.3;
+            // Increment the delay for each successive label.
+            // The delay increment factor corresponds to the duration of the animation for one label
+            delayOffset += duration;
         }
 
+        // If the player has won (the current word corresponds to the correct word)
         if (hasWon) {
+            // Set the keyboard button colors and animate the win effect when the current animation finishes
             timeline.setOnFinished(e -> {
                 setKeyboardButtonColors();
                 animateWinEffect(nodes);
             });
         }
+        // If the current row is equal to the last row (The player has run out of guesses)
         else if (currentRowIndex == letterBoxChildren.size() - 1) {
+            // Set the keyboard button colors and create a popup that displays the correct word when the current animation finishes
             timeline.setOnFinished(e -> {
                 setKeyboardButtonColors();
                 createDialog(String.format("The word was %s", correctWord), 4.5);
             });
         }
+        // If the player has neither won not lost
         else {
+            // Set the keyboard button colors when the current animation finishes
             timeline.setOnFinished(e -> setKeyboardButtonColors());
         }
 
